@@ -15,8 +15,6 @@ def payments(request):
     body = json.loads(request.body)
     order = Order.objects.get(user=request.user, is_ordered=False, order_number=body['orderID'])
 #    print("Order details are : ", list(order))
-    print("order id :  ", order.id)
-
     #store the tranbsaction detauils inside payment models
     payment = Payment(
         user = request.user,
@@ -36,7 +34,6 @@ def payments(request):
     for item in cart_items:
         orderproduct = OrderProduct()
         orderproduct.order_id = order.id
-        print("product id : ", orderproduct.order_id)
         orderproduct.payment = payment
         orderproduct.user_id = request.user.id
         orderproduct.product_id = item.product_id
