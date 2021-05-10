@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from .forms import ReviewForm
 from django.contrib import messages
+from orders.models import OrderProduct
 # Create your views here.
 
 def store(request, category_slug=None):
@@ -39,9 +40,22 @@ def product_detail(request, category_slug, product_slug):
         in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request), product=single_product).exists()
     except Exception as e:
         raise e
+        #check if user purchased the product or not
+    if request.user.is_authenticated:
+        try:
+            orderproduct = OrderProduct.objects.filter(user= request.user, product_id= single_product.id).exists()
+        except OrderProduct.DoesNotExist:
+            orderproduct = None
+    else:
+        orderproduct = None
+    #get the reviews
+    reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True)
+
     context = {
         'single_product' : single_product,
         'in_cart' : in_cart,
+        'orderproduct' : orderproduct,
+        'reviews' : reviews,
     }
     return render(request, 'store/product_detail.html', context)
 
